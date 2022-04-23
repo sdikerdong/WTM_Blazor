@@ -1,0 +1,61 @@
+﻿@page "/Patient/Create"
+@using WTM_Blazor.ViewModel.PatientVMs;
+@inherits BasePage
+
+<ValidateForm @ref="vform" Model="@Model" OnValidSubmit="@Submit">
+    <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Normal">
+
+            <BootstrapInput @bind-Value="@Model.Entity.Name"  />
+            <BootstrapInput @bind-Value="@Model.Entity.PersonalID"  />
+            <Select @bind-Value="@Model.Entity.PatientSex"  PlaceHolder="@WtmBlazor.Localizer["Sys.PleaseSelect"]"/>
+            <DateTimePicker @bind-Value="@Model.Entity.birthday"  />
+            <Select @bind-Value="@Model.Entity.LocationId" Items="@AllCitys" PlaceHolder="@WtmBlazor.Localizer["Sys.PleaseSelect"]"/>
+            <Select @bind-Value="@Model.Entity.hospitalId" Items="@AllHospitals" PlaceHolder="@WtmBlazor.Localizer["Sys.PleaseSelect"]"/>
+    <Row ColSpan="2">
+            <Transfer @bind-Value="@Model.SelectedpatientVirusesIDs" Items="@AllViruss" />
+    </Row>
+            <Select @bind-Value="@Model.Entity.patientStatus"  PlaceHolder="@WtmBlazor.Localizer["Sys.PleaseSelect"]"/>
+            <WTUploadImage @bind-Value="@Model.Entity.photoId"  />
+    </Row>
+    <div class="modal-footer table-modal-footer">
+        <Button Color="Color.Primary" Icon="fa fa-save" Text="@WtmBlazor.Localizer["Sys.Close"]" OnClick="OnClose" />
+        <Button Color="Color.Primary" ButtonType="ButtonType.Submit" Icon="fa fa-save" Text="@WtmBlazor.Localizer["Sys.Create"]" IsAsync="true" />
+    </div>
+</ValidateForm>
+
+@code {
+
+    private PatientVM Model = new PatientVM();
+    private ValidateForm vform { get; set; }
+
+    private List<SelectedItem> AllCitys = new List<SelectedItem>();
+
+    private List<SelectedItem> AllHospitals = new List<SelectedItem>();
+
+    private List<SelectedItem> AllViruss = new List<SelectedItem>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        AllCitys = await WtmBlazor.Api.CallItemsApi("/api/Patient/GetCitys", placeholder: WtmBlazor.Localizer["Sys.PleaseSelect"]);
+
+        AllHospitals = await WtmBlazor.Api.CallItemsApi("/api/Patient/GetHospitals", placeholder: WtmBlazor.Localizer["Sys.PleaseSelect"]);
+
+        AllViruss = await WtmBlazor.Api.CallItemsApi("/api/Patient/GetViruss");
+
+        await base.OnInitializedAsync();
+    }
+
+
+    private async Task Submit(EditContext context)
+    {
+        await PostsForm(vform, "/api/Patient/add", (s) => "Sys.OprationSuccess");
+    }
+
+    public void OnClose()
+    {
+        CloseDialog();
+    }
+
+}

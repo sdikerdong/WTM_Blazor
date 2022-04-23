@@ -1,0 +1,55 @@
+﻿@page "/Patient/Details/{id}"
+@using WTM_Blazor.ViewModel.PatientVMs;
+@inherits BasePage
+
+<ValidateForm @ref="vform" Model="@Model" >
+    <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Normal">
+
+            <Display @bind-Value="@Model.Entity.Name"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.PersonalID"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.PatientSex"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.birthday"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.LocationId" Lookup="@AllCitys"  ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.hospitalId" Lookup="@AllHospitals"  ShowLabel="true"/>
+            <Display @bind-Value="@Model.SelectedpatientVirusesIDs" Lookup="@AllViruss"  ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.patientStatus"   ShowLabel="true"/>
+            <WTUploadImage @bind-Value="@Model.Entity.photoId"  IsDisabled="true" ShowLabel="true"/>
+    </Row>
+    <div class="modal-footer table-modal-footer">
+        <Button Color="Color.Primary" Icon="fa fa-save" Text="@WtmBlazor.Localizer["Sys.Close"]" OnClick="OnClose" />
+    </div>
+</ValidateForm>
+
+@code {
+
+    private PatientVM Model = null;
+    private ValidateForm vform { get; set; }
+    [Parameter]
+    public string id { get; set; }
+
+    private List<SelectedItem> AllCitys = new List<SelectedItem>();
+
+    private List<SelectedItem> AllHospitals = new List<SelectedItem>();
+
+    private List<SelectedItem> AllViruss = new List<SelectedItem>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        AllCitys = await WtmBlazor.Api.CallItemsApi("/api/Patient/GetCitys", placeholder: WtmBlazor.Localizer["Sys.All"]);
+
+        AllHospitals = await WtmBlazor.Api.CallItemsApi("/api/Patient/GetHospitals", placeholder: WtmBlazor.Localizer["Sys.All"]);
+
+        AllViruss = await WtmBlazor.Api.CallItemsApi("/api/Patient/GetViruss", placeholder: WtmBlazor.Localizer["Sys.All"]);
+
+        var rv = await WtmBlazor.Api.CallAPI<PatientVM>($"/api/Patient/{id}");
+        Model = rv.Data;
+    }
+
+    public void OnClose()
+    {
+        CloseDialog();
+    }
+
+}

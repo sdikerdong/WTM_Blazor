@@ -1,0 +1,56 @@
+﻿@page "/MyUser/Details/{id}"
+@using WTM_Blazor.ViewModel.MyUserVMs;
+@inherits BasePage
+
+<ValidateForm @ref="vform" Model="@Model" >
+    <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Normal">
+
+            <Display @bind-Value="@Model.Entity.HospitalId" Lookup="@AllHospitals"  ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.ControlCenterId" Lookup="@AllControlCenters"  ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.Email"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.Gender"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.CellPhone"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.HomePhone"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.Address"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.ZipCode"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.ITCode"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.Password"   ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.Name"   ShowLabel="true"/>
+            <Switch @bind-Value="@Model.Entity.IsValid"  IsDisabled="true" ShowLabel="true"/>
+            <WTUploadImage @bind-Value="@Model.Entity.PhotoId"  IsDisabled="true" ShowLabel="true"/>
+            <Display @bind-Value="@Model.Entity.TenantCode"   ShowLabel="true"/>
+    </Row>
+    <div class="modal-footer table-modal-footer">
+        <Button Color="Color.Primary" Icon="fa fa-save" Text="@WtmBlazor.Localizer["Sys.Close"]" OnClick="OnClose" />
+    </div>
+</ValidateForm>
+
+@code {
+
+    private MyUserVM Model = null;
+    private ValidateForm vform { get; set; }
+    [Parameter]
+    public string id { get; set; }
+
+    private List<SelectedItem> AllHospitals = new List<SelectedItem>();
+
+    private List<SelectedItem> AllControlCenters = new List<SelectedItem>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        AllHospitals = await WtmBlazor.Api.CallItemsApi("/api/MyUser/GetHospitals", placeholder: WtmBlazor.Localizer["Sys.All"]);
+
+        AllControlCenters = await WtmBlazor.Api.CallItemsApi("/api/MyUser/GetControlCenters", placeholder: WtmBlazor.Localizer["Sys.All"]);
+
+        var rv = await WtmBlazor.Api.CallAPI<MyUserVM>($"/api/MyUser/{id}");
+        Model = rv.Data;
+    }
+
+    public void OnClose()
+    {
+        CloseDialog();
+    }
+
+}
